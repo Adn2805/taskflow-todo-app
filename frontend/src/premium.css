@@ -385,3 +385,41 @@ body, #root {
     scroll-behavior: auto !important;
   }
 }
+
+/* === MOBILE RESPONSIVENESS (Premium) === */
+@media (max-width: 768px) {
+  .dashboard__metrics {
+    grid-template-columns: 1fr; /* Stack metric cards */
+    gap: 16px;
+  }
+
+  .dashboard__insights {
+    flex-direction: column; /* Stack insight panels */
+    gap: 16px;
+  }
+
+  .activity-heatmap {
+    padding: 20px;
+    /* allow the heatmap to scroll horizontally rather than shrink completely */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .activity-heatmap__grid {
+    /* Slightly smaller squares for mobile, but mostly rely on scrolling */
+    gap: 4px;
+    min-width: 320px; 
+    margin: 0 auto;
+    padding-bottom: 8px;
+  }
+
+  .activity-heatmap__day {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+  
+  .dashboard__empty-state {
+    padding: 32px 20px;
+  }
+}

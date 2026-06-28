@@ -1533,12 +1533,115 @@ ul, ol {
   }
 }
 
-@media (max-width: 480px) {
+/* === COMPREHENSIVE MOBILE RESPONSIVENESS === */
+@media (max-width: 768px) {
   .stats-bar {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
+  /* Todo List Header & Filters */
+  .todo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .todo-search {
+    width: 100%;
+    max-width: none;
+  }
+
+  .todo-filters {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  
+  .todo-filters::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for a native feel */
+  }
+
+  /* Todo Items */
+  .todo-item {
+    padding: 12px;
+    gap: 12px;
+    align-items: flex-start; /* Align to top instead of center for multi-line */
+    flex-wrap: wrap;
+  }
+
+  .todo-item__checkbox {
+    min-width: 44px; /* Touch target minimum */
+    min-height: 44px;
+    margin: -10px; /* Offset to keep alignment but expand touch area */
+    padding: 10px;
+  }
+
+  .todo-item__content {
+    min-width: 0; /* Allow truncation */
+  }
+
+  .todo-item__title {
+    white-space: normal; /* Allow wrapping on very narrow screens */
+    word-break: break-word;
+    margin-top: 2px;
+  }
+
+  .todo-item__badges {
+    flex-wrap: wrap; /* Prevent overlap */
+  }
+
+  .todo-item__actions {
+    position: relative; /* Remove absolute positioning */
+    opacity: 1; /* Always visible on mobile */
+    right: auto;
+    transform: none;
+    background: transparent;
+    padding: 0;
+    margin-top: 8px;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .todo-item__action-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  /* Todo Detail Page */
   .todo-detail__meta {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .todo-detail__actions {
+    flex-direction: column; /* Stack actions on mobile */
+    gap: 12px;
+  }
+
+  .todo-detail__action-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px; /* Tappable height */
+  }
+
+  .todo-detail__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Modals */
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+    padding: 24px;
+    overflow-y: auto;
+    margin: auto;
   }
 }

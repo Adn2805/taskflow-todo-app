@@ -1,16 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CommandPalette from '../components/CommandPalette';
 
 export default function WorkspaceLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
     <div className={`workspace ${sidebarOpen ? 'workspace--sidebar-open' : 'workspace--sidebar-closed'}`}>
+      {/* Mobile Sidebar Overlay */}
+      <div 
+        className={`workspace__sidebar-overlay ${sidebarOpen ? 'workspace__sidebar-overlay--active' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
       
       <main className="workspace__main">
