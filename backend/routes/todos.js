@@ -1,49 +1,53 @@
 import { Router } from 'express';
-import { queryAll, queryOne, runSql, lastInsertRowId, saveDb, getDb } from '../db.js';
+import { queryAll, queryOne, runSql, getDb } from '../db.js';
 
 const router = Router();
 
 const VALID_PRIORITIES = ['low', 'medium', 'high'];
 const VALID_STATUSES = ['pending', 'completed'];
 
-router.get('/activity', (req, res) => {
-  const days = parseInt(req.query.days) || 35;
-  const db = getDb();
-  
-  // Use queryAll from our db module
-  const rows = queryAll(`
-    SELECT DATE(timestamp) as date, COUNT(*) as count
-    FROM activity_log
-    WHERE timestamp >= DATE('now', '-' || ? || ' days')
-    GROUP BY DATE(timestamp)
-    ORDER BY date ASC
-  `, [days]);
-  
-  const result = [];
-  for(let i = days-1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const found = rows.find(r => r.date === dateStr);
-    result.push({ date: dateStr, count: found ? found.count : 0 });
+router.get('/activity', async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 35;
+    
+    // Use queryAll from our db module
+    const rows = await queryAll(`
+      SELECT DATE(timestamp) as date, COUNT(*) as count
+      FROM activity_log
+      WHERE timestamp >= DATE('now', '-' || ? || ' days')
+      GROUP BY DATE(timestamp)
+      ORDER BY date ASC
+    `, [days]);
+    
+    const result = [];
+    for(let i = days-1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const found = rows.find(r => r.date === dateStr);
+      result.push({ date: dateStr, count: found ? Number(found.count) : 0 });
+    }
+    res.json({ success: true, data: result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, data: null });
   }
-  res.json({ success: true, data: result });
 });
 
 /**
  * GET /
  * List all todos with optional search, priority, and status filters.
  */
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { search, priority, status } = req.query;
 
     let query = 'SELECT * FROM todos WHERE 1=1';
-    const params = {};
+    const params = [];
 
     if (search) {
-      query += ' AND (title LIKE $search OR description LIKE $search)';
-      params.$search = `%${search}%`;
+      query += ' AND (title LIKE ? OR description LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`);
     }
 
     if (priority) {
@@ -54,8 +58,8 @@ router.get('/', (req, res) => {
           message: `Invalid priority filter. Must be one of: ${VALID_PRIORITIES.join(', ')}`,
         });
       }
-      query += ' AND priority = $priority';
-      params.$priority = priority;
+      query += ' AND priority = ?';
+      params.push(priority);
     }
 
     if (status) {
@@ -66,21 +70,22 @@ router.get('/', (req, res) => {
           message: `Invalid status filter. Must be one of: ${VALID_STATUSES.join(', ')}`,
         });
       }
-      query += ' AND status = $status';
-      params.$status = status;
+      query += ' AND status = ?';
+      params.push(status);
     }
 
     query += ' ORDER BY created_at DESC';
 
-    const todos = queryAll(query, params);
+    const todos = await queryAll(query, params);
 
-    const todosWithLog = todos.map((todo) => ({
-      ...todo,
-      activity_log: queryAll(
-        'SELECT * FROM activity_log WHERE todo_id = $todo_id ORDER BY timestamp DESC',
-        { $todo_id: todo.id }
-      ),
-    }));
+    const todosWithLog = [];
+    for (const todo of todos) {
+      const activityLog = await queryAll(
+        'SELECT * FROM activity_log WHERE todo_id = ? ORDER BY timestamp DESC',
+        [todo.id]
+      );
+      todosWithLog.push({ ...todo, activity_log: activityLog });
+    }
 
     return res.json({
       success: true,
@@ -88,6 +93,7 @@ router.get('/', (req, res) => {
       message: 'Todos retrieved successfully',
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({
       success: false,
       data: null,
@@ -100,7 +106,7 @@ router.get('/', (req, res) => {
  * GET /:id
  * Retrieve a single todo by ID, including its activity log.
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
 
@@ -112,7 +118,7 @@ router.get('/:id', (req, res) => {
       });
     }
 
-    const todo = queryOne('SELECT * FROM todos WHERE id = $id', { $id: id });
+    const todo = await queryOne('SELECT * FROM todos WHERE id = ?', [id]);
 
     if (!todo) {
       return res.status(404).json({
@@ -122,9 +128,9 @@ router.get('/:id', (req, res) => {
       });
     }
 
-    const activityLog = queryAll(
-      'SELECT * FROM activity_log WHERE todo_id = $todo_id ORDER BY timestamp DESC',
-      { $todo_id: id }
+    const activityLog = await queryAll(
+      'SELECT * FROM activity_log WHERE todo_id = ? ORDER BY timestamp DESC',
+      [id]
     );
 
     return res.json({
@@ -133,6 +139,7 @@ router.get('/:id', (req, res) => {
       message: 'Todo retrieved successfully',
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({
       success: false,
       data: null,
@@ -145,7 +152,7 @@ router.get('/:id', (req, res) => {
  * POST /
  * Create a new todo. Title is required; description, priority, and due_date are optional.
  */
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { title, description, priority, due_date } = req.body;
 
@@ -166,27 +173,24 @@ router.post('/', (req, res) => {
     }
 
     const now = new Date().toISOString();
-    const db = getDb();
 
-    db.run(
+    const insertResult = await runSql(
       `INSERT INTO todos (title, description, priority, due_date, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [title.trim(), description ?? '', priority ?? 'medium', due_date ?? null, now, now]
     );
 
-    const newTodoId = lastInsertRowId();
+    const newTodoId = Number(insertResult.lastInsertRowid);
 
-    db.run(
+    await runSql(
       'INSERT INTO activity_log (todo_id, action, timestamp) VALUES (?, ?, ?)',
       [newTodoId, 'Created', now]
     );
 
-    saveDb();
-
-    const createdTodo = queryOne('SELECT * FROM todos WHERE id = $id', { $id: newTodoId });
-    const activityLog = queryAll(
-      'SELECT * FROM activity_log WHERE todo_id = $todo_id ORDER BY timestamp DESC',
-      { $todo_id: newTodoId }
+    const createdTodo = await queryOne('SELECT * FROM todos WHERE id = ?', [newTodoId]);
+    const activityLog = await queryAll(
+      'SELECT * FROM activity_log WHERE todo_id = ? ORDER BY timestamp DESC',
+      [newTodoId]
     );
 
     return res.status(201).json({
@@ -195,6 +199,7 @@ router.post('/', (req, res) => {
       message: 'Todo created successfully',
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({
       success: false,
       data: null,
@@ -207,7 +212,7 @@ router.post('/', (req, res) => {
  * PUT /:id
  * Update an existing todo. Tracks status transitions in the activity log.
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
 
@@ -219,7 +224,7 @@ router.put('/:id', (req, res) => {
       });
     }
 
-    const existing = queryOne('SELECT * FROM todos WHERE id = $id', { $id: id });
+    const existing = await queryOne('SELECT * FROM todos WHERE id = ?', [id]);
 
     if (!existing) {
       return res.status(404).json({
@@ -256,7 +261,6 @@ router.put('/:id', (req, res) => {
     }
 
     const now = new Date().toISOString();
-    const db = getDb();
 
     const updatedTitle = title !== undefined ? title.trim() : existing.title;
     const updatedDescription = description !== undefined ? description : existing.description;
@@ -264,7 +268,7 @@ router.put('/:id', (req, res) => {
     const updatedStatus = status !== undefined ? status : existing.status;
     const updatedDueDate = due_date !== undefined ? due_date : existing.due_date;
 
-    db.run(
+    await runSql(
       `UPDATE todos
        SET title = ?, description = ?, priority = ?, status = ?, due_date = ?, updated_at = ?
        WHERE id = ?`,
@@ -274,12 +278,12 @@ router.put('/:id', (req, res) => {
     // Log status changes
     if (status !== undefined && status !== existing.status) {
       if (status === 'completed') {
-        db.run(
+        await runSql(
           'INSERT INTO activity_log (todo_id, action, timestamp) VALUES (?, ?, ?)',
           [id, 'Completed', now]
         );
       } else if (status === 'pending' && existing.status === 'completed') {
-        db.run(
+        await runSql(
           'INSERT INTO activity_log (todo_id, action, timestamp) VALUES (?, ?, ?)',
           [id, 'Reopened', now]
         );
@@ -295,18 +299,16 @@ router.put('/:id', (req, res) => {
 
     if (changedFields.length > 0) {
       const detail = `Updated ${changedFields.join(', ')}`;
-      db.run(
+      await runSql(
         'INSERT INTO activity_log (todo_id, action, timestamp) VALUES (?, ?, ?)',
         [id, detail, now]
       );
     }
 
-    saveDb();
-
-    const updatedTodo = queryOne('SELECT * FROM todos WHERE id = $id', { $id: id });
-    const activityLog = queryAll(
-      'SELECT * FROM activity_log WHERE todo_id = $todo_id ORDER BY timestamp DESC',
-      { $todo_id: id }
+    const updatedTodo = await queryOne('SELECT * FROM todos WHERE id = ?', [id]);
+    const activityLog = await queryAll(
+      'SELECT * FROM activity_log WHERE todo_id = ? ORDER BY timestamp DESC',
+      [id]
     );
 
     return res.json({
@@ -315,6 +317,7 @@ router.put('/:id', (req, res) => {
       message: 'Todo updated successfully',
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({
       success: false,
       data: null,
@@ -327,7 +330,7 @@ router.put('/:id', (req, res) => {
  * DELETE /:id
  * Remove a todo by ID. Activity log entries are cascade-deleted.
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
 
@@ -339,7 +342,7 @@ router.delete('/:id', (req, res) => {
       });
     }
 
-    const existing = queryOne('SELECT * FROM todos WHERE id = $id', { $id: id });
+    const existing = await queryOne('SELECT * FROM todos WHERE id = ?', [id]);
 
     if (!existing) {
       return res.status(404).json({
@@ -348,17 +351,14 @@ router.delete('/:id', (req, res) => {
         message: 'Todo not found',
       });
     }
-
-    const db = getDb();
     
     const now = new Date().toISOString();
-    db.run(
+    await runSql(
       'INSERT INTO activity_log (todo_id, action, timestamp) VALUES (?, ?, ?)',
       [id, 'Deleted', now]
     );
 
-    db.run('DELETE FROM todos WHERE id = ?', [id]);
-    saveDb();
+    await runSql('DELETE FROM todos WHERE id = ?', [id]);
 
     return res.json({
       success: true,
@@ -366,6 +366,7 @@ router.delete('/:id', (req, res) => {
       message: 'Todo deleted successfully',
     });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({
       success: false,
       data: null,

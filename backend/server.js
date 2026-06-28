@@ -31,12 +31,13 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-// Initialize database then start server
-async function start() {
-  await initDb();
+// Initialize database
+await initDb();
+
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
 
-start();
+export default app;
