@@ -2,7 +2,7 @@
 
 **Live Demo:** [https://taskflow-todo-app-lime.vercel.app/](https://taskflow-todo-app-lime.vercel.app/)
 
-A full-stack todo application built with React 18, Express.js, and LibSQL (SQLite on the edge). Designed with modern UI/UX patterns including a dark theme and activity tracking.
+A full-stack todo application built with React 18, Express.js, and LibSQL (SQLite on the edge). Designed with modern UI/UX patterns including a premium dark theme, glassmorphism, activity tracking, and a fully responsive mobile layout.
 
 ## Quick Start
 
