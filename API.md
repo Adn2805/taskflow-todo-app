@@ -1,4 +1,4 @@
-# 📡 TaskFlow API Documentation
+# TaskFlow API Documentation
 
 Base URL: `http://localhost:3001/api`
 
@@ -45,7 +45,7 @@ GET /api/todos?priority=high&status=pending
 GET /api/todos?search=design
 ```
 
-**Success Response — `200 OK`:**
+**Success Response (200 OK):**
 
 ```json
 {
@@ -95,7 +95,7 @@ Retrieves a single todo by its ID, including its activity log.
 GET /api/todos/1
 ```
 
-**Success Response — `200 OK`:**
+**Success Response (200 OK):**
 
 ```json
 {
@@ -121,7 +121,7 @@ GET /api/todos/1
 }
 ```
 
-**Error Response — `404 Not Found`:**
+**Error Response (404 Not Found):**
 
 ```json
 {
@@ -167,7 +167,7 @@ Content-Type: application/json
 }
 ```
 
-**Success Response — `201 Created`:**
+**Success Response (201 Created):**
 
 ```json
 {
@@ -193,7 +193,7 @@ Content-Type: application/json
 }
 ```
 
-**Error Response — `400 Bad Request`:**
+**Error Response (400 Bad Request):**
 
 ```json
 {
@@ -235,7 +235,7 @@ Content-Type: application/json
 | `status`      | string | New status: `pending`, `completed`      |
 | `due_date`    | string | New due date (`YYYY-MM-DD`) or `null`   |
 
-**Example Request — Mark as completed:**
+**Example Request (Mark as completed):**
 
 ```json
 {
@@ -243,7 +243,7 @@ Content-Type: application/json
 }
 ```
 
-**Example Request — Update multiple fields:**
+**Example Request (Update multiple fields):**
 
 ```json
 {
@@ -253,7 +253,7 @@ Content-Type: application/json
 }
 ```
 
-**Success Response — `200 OK`:**
+**Success Response (200 OK):**
 
 ```json
 {
@@ -292,7 +292,7 @@ Content-Type: application/json
 | `completed` → `pending` | `"Reopened"` |
 | Other field changes | `"Updated"` |
 
-**Error Response — `404 Not Found`:**
+**Error Response (404 Not Found):**
 
 ```json
 {
@@ -324,7 +324,7 @@ Permanently deletes a todo and all its activity log entries (via CASCADE).
 DELETE /api/todos/1
 ```
 
-**Success Response — `200 OK`:**
+**Success Response (200 OK):**
 
 ```json
 {
@@ -334,7 +334,7 @@ DELETE /api/todos/1
 }
 ```
 
-**Error Response — `404 Not Found`:**
+**Error Response (404 Not Found):**
 
 ```json
 {

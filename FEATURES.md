@@ -1,4 +1,4 @@
-# ✨ TaskFlow — Features & Functionality
+# TaskFlow Features & Functionality
 
 A comprehensive list of all features, UI/UX details, and technical decisions in the TaskFlow todo application.
 
@@ -6,7 +6,7 @@ A comprehensive list of all features, UI/UX details, and technical decisions in 
 
 ## Core Features
 
-### ✏️ Todo Management (Full CRUD)
+### Todo Management (Full CRUD)
 
 | Operation | Description |
 |-----------|-------------|
@@ -15,7 +15,7 @@ A comprehensive list of all features, UI/UX details, and technical decisions in 
 | **Update** | Edit tasks via modal. Toggle completion status with animated checkbox. All changes are logged |
 | **Delete** | Remove tasks with smooth slide-out animation. Activity logs cascade-deleted automatically |
 
-### 🗂️ Multi-Page Architecture
+### Multi-Page Architecture
 
 | Page | Route | Description |
 |------|-------|-------------|
@@ -26,7 +26,7 @@ A comprehensive list of all features, UI/UX details, and technical decisions in 
 - Todo Detail page supports both URL params (`/todos/3`) and query params (`/todos?id=3`)
 - Root path `/` redirects to `/todos`
 
-### 🔍 Filtering & Search
+### Filtering & Search
 
 | Filter Type | Options | Description |
 |-------------|---------|-------------|
@@ -38,7 +38,7 @@ A comprehensive list of all features, UI/UX details, and technical decisions in 
 - Filter state updates trigger new API calls with query parameters
 - Contextual empty state messages when no results match
 
-### 📊 Stats Dashboard
+### Stats Dashboard
 
 Three glassmorphism stat cards displayed above the task list:
 
@@ -48,7 +48,7 @@ Three glassmorphism stat cards displayed above the task list:
 | **Completed** | Count of completed tasks (green) |
 | **Pending** | Count of pending tasks (amber) |
 
-### 📝 Activity Logging
+### Activity Logging
 
 Every action on a todo is logged in the `activity_log` table:
 
@@ -60,24 +60,24 @@ Every action on a todo is logged in the `activity_log` table:
 | **Updated** | When title, description, priority, or due date changes |
 
 Activity logs are displayed as a **color-coded timeline** on the Todo Detail page:
-- 🔵 Created — Blue dot
-- 🟢 Completed — Green dot
-- 🟡 Updated — Amber dot
-- 🟣 Reopened — Purple dot
+- Created: Blue dot
+- Completed: Green dot
+- Updated: Amber dot
+- Reopened: Purple dot
 
 ---
 
 ## UI/UX Features
 
-### 🌙 Dark / Light Theme
+### Dark / Light Theme
 
-- **Dark theme** by default — premium aesthetic with deep backgrounds (#0a0a0f, #12121a)
+- **Dark theme** by default (deep backgrounds #0a0a0f, #12121a)
 - **Light theme** available — clean whites and light grays
 - Toggle via sidebar button (sun/moon icon with rotation animation)
 - Theme preference **persisted in localStorage** across sessions
 - Smooth CSS transition on theme switch (background, text, borders)
 
-### 🪟 Glassmorphism Design
+### Glassmorphism Design
 
 - **Sidebar**: Semi-transparent background with `backdrop-filter: blur(20px)`
 - **Stat cards**: Frosted glass effect with subtle borders
@@ -85,7 +85,7 @@ Activity logs are displayed as a **color-coded timeline** on the Todo Detail pag
 - **Modal**: Backdrop blur overlay with glass content card
 - **Search input**: Glass-styled input with focus glow ring
 
-### ✨ Micro-Animations
+### Micro-Animations
 
 | Element | Animation |
 |---------|-----------|
@@ -99,7 +99,7 @@ Activity logs are displayed as a **color-coded timeline** on the Todo Detail pag
 | **Loading skeleton** | Pulsing opacity animation |
 | **Stats card hover** | Accent border glow appears |
 
-### ⌨️ Keyboard Shortcuts
+### Keyboard Shortcuts
 
 | Shortcut | Action | Context |
 |----------|--------|---------|
@@ -110,7 +110,7 @@ Activity logs are displayed as a **color-coded timeline** on the Todo Detail pag
 - Shortcuts are **displayed in the sidebar** as visual hints using keyboard badge styling
 - Shortcuts are disabled when user is typing in an input or textarea
 
-### 📱 Responsive Design
+### Responsive Design
 
 | Breakpoint | Layout |
 |-----------|--------|
@@ -122,7 +122,7 @@ Activity logs are displayed as a **color-coded timeline** on the Todo Detail pag
 - Modal becomes full-width on mobile
 - Filter pills wrap to multiple lines
 
-### 🎯 Empty States
+### Empty States
 
 - Custom **SVG clipboard illustration** (inline, no external assets)
 - Contextual message:
@@ -130,7 +130,7 @@ Activity logs are displayed as a **color-coded timeline** on the Todo Detail pag
   - No todos at all: "Create your first task to get started"
 - Call-to-action button to create a task
 
-### 🔲 Custom Checkbox
+### Custom Checkbox
 
 - SVG-based animated checkbox (not browser default)
 - Circle outline → filled circle with checkmark animation
@@ -200,7 +200,7 @@ Activity logs are displayed as a **color-coded timeline** on the Todo Detail pag
 Zero configuration, file-based database that's perfect for a self-contained demo application. No external database server required. The `sql.js` library provides a pure JavaScript/WebAssembly SQLite implementation that requires zero native build tools — it works on any system without C++ compilers or Visual Studio.
 
 ### 2. sql.js over better-sqlite3 / sqlite3
-Pure JavaScript/WebAssembly implementation — zero native dependencies means no need for C++ build tools (Visual Studio, Xcode, etc.). Works out of the box on any OS with Node.js installed. Data persists to a file on disk after every write operation.
+Pure JavaScript/WebAssembly implementation. Zero native dependencies means no need for C++ build tools (Visual Studio, Xcode, etc.). Works out of the box on any OS with Node.js installed. Data persists to a file on disk after every write operation.
 
 ### 3. Vanilla CSS over Tailwind / CSS-in-JS
 Demonstrates fundamental CSS knowledge and architecture skills. CSS Custom Properties enable runtime theme switching without any JavaScript framework overhead. BEM naming provides a predictable, scalable class naming convention.

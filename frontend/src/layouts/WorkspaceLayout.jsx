@@ -65,9 +65,6 @@ export default function WorkspaceLayout() {
               <span>Search</span>
               <kbd>Ctrl K</kbd>
             </button>
-            <div className="workspace__avatar">
-              <img src="https://i.pravatar.cc/150?u=taskflow" alt="User" />
-            </div>
           </div>
         </header>
 
