@@ -399,10 +399,12 @@ body, #root {
   }
 
   .activity-heatmap {
-    padding: 20px;
+    padding: 20px 0; /* Removing horizontal padding helps use full width */
     /* allow the heatmap to scroll horizontally rather than shrink completely */
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100vw;
   }
 
   .activity-heatmap__grid {

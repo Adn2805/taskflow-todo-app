@@ -28,7 +28,7 @@ export default function WorkspaceLayout() {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
-    <div className={`workspace ${sidebarOpen ? 'workspace--sidebar-open' : 'workspace--sidebar-closed'}`}>
+    <div className={`workspace ${sidebarOpen ? 'workspace__sidebar-open' : 'workspace__sidebar-closed'}`}>
       {/* Mobile Sidebar Overlay */}
       <div 
         className={`workspace__sidebar-overlay ${sidebarOpen ? 'workspace__sidebar-overlay--active' : ''}`}
