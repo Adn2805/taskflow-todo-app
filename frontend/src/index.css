@@ -631,9 +631,7 @@ ul, ol {
 
 /* === Todo Item === */
 .todo-item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-lg);
+  display: block;
   padding: clamp(16px, 3vw, 24px);
   background: var(--bg-glass);
   backdrop-filter: blur(12px);
