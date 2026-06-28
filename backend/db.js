@@ -44,19 +44,13 @@ export async function initDb() {
   db.run(`
     CREATE TABLE IF NOT EXISTS activity_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      todo_id INTEGER REFERENCES todos(id) ON DELETE CASCADE,
+      todo_id INTEGER,
       action TEXT NOT NULL,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  // Seed sample data on first run
-  const countResult = db.exec('SELECT COUNT(*) AS count FROM todos');
-  const count = countResult[0].values[0][0];
-
-  if (count === 0) {
-    seedDatabase();
-  }
+  // Database starts empty on first run
 
   return db;
 }

@@ -1,110 +1,103 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 
 function AddTodoModal({ isOpen, onClose, onSubmit, editingTodo }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
   const [dueDate, setDueDate] = useState('');
-  const titleRef = useRef(null);
+  
+  const [isClosing, setIsClosing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       if (editingTodo) {
-        setTitle(editingTodo.title || '');
+        setTitle(editingTodo.title);
         setDescription(editingTodo.description || '');
-        setPriority(editingTodo.priority || 'medium');
-        setDueDate(editingTodo.due_date || '');
+        setPriority(editingTodo.priority);
+        setDueDate(editingTodo.due_date ? editingTodo.due_date.split('T')[0] : '');
       } else {
         setTitle('');
         setDescription('');
         setPriority('medium');
         setDueDate('');
       }
-      setTimeout(() => titleRef.current?.focus(), 100);
+      setIsClosing(false);
+      setIsSubmitting(false);
     }
   }, [isOpen, editingTodo]);
 
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
+  if (!isOpen && !isClosing) return null;
 
-  if (!isOpen) return null;
-
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
       onClose();
-    }
+      setIsClosing(false);
+    }, 150); 
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    onSubmit({
+    setIsSubmitting(true);
+    await onSubmit({
       title: title.trim(),
       description: description.trim(),
       priority,
       due_date: dueDate || null,
     });
-
-    onClose();
+    
+    handleClose();
   };
 
   return (
-    <div className="modal__overlay" onClick={handleOverlayClick}>
-      <div className="modal__content">
+    <div className={`modal__overlay modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleClose}>
+      <div 
+        className={`modal__content modal-content ${isClosing ? 'closing' : ''}`} 
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal__header">
           <h2 className="modal__title">
-            {editingTodo ? 'Edit Task' : 'Create New Task'}
+            {editingTodo ? 'Edit Task' : 'New Task'}
           </h2>
-          <button className="modal__close" onClick={onClose} aria-label="Close modal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+          <button className="modal__close" onClick={handleClose} type="button">
+            <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="modal__body">
-            <div className="modal__field">
-              <label className="modal__label" htmlFor="todo-title">
-                Title <span style={{ color: 'var(--priority-high)' }}>*</span>
-              </label>
+            
+            <div className="floating-field">
               <input
-                ref={titleRef}
-                id="todo-title"
-                className="modal__input"
+                autoFocus
+                id="title"
+                className="floating-input"
                 type="text"
+                placeholder=" "
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="What needs to be done?"
                 required
               />
+              <label className="floating-label" htmlFor="title">Task Title</label>
             </div>
 
-            <div className="modal__field">
-              <label className="modal__label" htmlFor="todo-description">
-                Description
-              </label>
+            <div className="floating-field">
               <textarea
-                id="todo-description"
-                className="modal__textarea"
+                id="description"
+                className="floating-textarea"
+                placeholder=" "
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add more details..."
-                rows={3}
               />
+              <label className="floating-label" htmlFor="description">Description (optional)</label>
             </div>
 
-            <div className="modal__field">
-              <label className="modal__label">Priority</label>
+            <div className="modal__field modal-form__group">
+              <label className="modal__label" style={{ marginBottom: '8px', color: 'rgba(255,255,255,0.6)' }}>Priority</label>
               <div className="modal__priority-selector">
                 {['low', 'medium', 'high'].map((p) => (
                   <button
@@ -121,26 +114,24 @@ function AddTodoModal({ isOpen, onClose, onSubmit, editingTodo }) {
               </div>
             </div>
 
-            <div className="modal__field">
-              <label className="modal__label" htmlFor="todo-due-date">
-                Due Date
-              </label>
+            <div className="floating-field" style={{ marginTop: '16px' }}>
               <input
                 id="todo-due-date"
-                className="modal__input"
+                className="floating-input"
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
               />
+              <label className="floating-label" htmlFor="todo-due-date">Due Date</label>
             </div>
           </div>
 
           <div className="modal__footer">
-            <button type="button" className="modal__btn modal__btn--cancel" onClick={onClose}>
+            <button type="button" className="modal__btn modal__btn--cancel" onClick={handleClose} disabled={isSubmitting}>
               Cancel
             </button>
-            <button type="submit" className="modal__btn modal__btn--submit" disabled={!title.trim()}>
-              {editingTodo ? 'Save Changes' : 'Create Task'}
+            <button type="submit" className="btn-primary" disabled={!title.trim() || isSubmitting}>
+              {isSubmitting ? 'Saving...' : (editingTodo ? 'Save Changes' : 'Create Task')}
             </button>
           </div>
         </form>

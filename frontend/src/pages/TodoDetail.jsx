@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { CalendarPlus } from 'lucide-react';
 import AddTodoModal from '../components/AddTodoModal';
+import { downloadICS } from '../utils/calendar';
 
 const API_BASE = '/api/todos';
 
@@ -57,6 +59,7 @@ function TodoDetail() {
       const json = await res.json();
       if (json.success) {
         await fetchTodo();
+        window.dispatchEvent(new Event('activity-updated'));
       }
     } catch {
       // Handle error silently
@@ -73,6 +76,7 @@ function TodoDetail() {
       });
       const json = await res.json();
       if (json.success) {
+        window.dispatchEvent(new Event('activity-updated'));
         navigate('/todos');
       }
     } catch {
@@ -92,6 +96,7 @@ function TodoDetail() {
       const json = await res.json();
       if (json.success) {
         await fetchTodo();
+        window.dispatchEvent(new Event('activity-updated'));
       }
     } catch {
       // Handle error silently
@@ -249,6 +254,16 @@ function TodoDetail() {
               </>
             )}
           </button>
+
+          {todo.due_date && (
+            <button
+              className="todo-detail__action-btn"
+              onClick={() => downloadICS(todo)}
+            >
+              <CalendarPlus size={16} />
+              Add to Calendar
+            </button>
+          )}
 
           <button
             className="todo-detail__action-btn"

@@ -1,34 +1,31 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import WorkspaceLayout from './layouts/WorkspaceLayout';
+import Dashboard from './pages/Dashboard';
 import TodoList from './pages/TodoList';
 import TodoDetail from './pages/TodoDetail';
+import AppLoader from './components/AppLoader';
 
 function App() {
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('taskflow-theme') || 'dark';
-  });
+  const location = useLocation();
 
+  // Enforce dark mode
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('taskflow-theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
-  };
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
   return (
-    <div className="app-layout">
-      <Sidebar theme={theme} onToggleTheme={toggleTheme} />
-      <main className="main-content">
-        <Routes>
-          <Route path="/" element={<Navigate to="/todos" replace />} />
-          <Route path="/todos" element={<TodoList />} />
-          <Route path="/todos/:id" element={<TodoDetail />} />
+    <AppLoader>
+      <div key={location.pathname} className="page-transition-wrapper">
+        <Routes location={location}>
+          <Route element={<WorkspaceLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/todos" element={<TodoList />} />
+            <Route path="/todos/:id" element={<TodoDetail />} />
+          </Route>
         </Routes>
-      </main>
-    </div>
+      </div>
+    </AppLoader>
   );
 }
 

@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import TodoItem from '../components/TodoItem';
 import AddTodoModal from '../components/AddTodoModal';
 
 const API_BASE = '/api/todos';
 
 function TodoList() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlFilter = searchParams.get('filter') || 'all';
+
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -19,8 +22,8 @@ function TodoList() {
       const params = new URLSearchParams();
       if (searchQuery) params.set('search', searchQuery);
       if (priorityFilter !== 'all') params.set('priority', priorityFilter);
-      if (filter === 'active') params.set('status', 'pending');
-      if (filter === 'completed') params.set('status', 'completed');
+      if (urlFilter === 'active' || urlFilter === 'today' || urlFilter === 'upcoming') params.set('status', 'pending');
+      if (urlFilter === 'completed') params.set('status', 'completed');
 
       const queryString = params.toString();
       const url = queryString ? `${API_BASE}?${queryString}` : API_BASE;
@@ -36,7 +39,7 @@ function TodoList() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, priorityFilter, filter]);
+  }, [searchQuery, priorityFilter, urlFilter]);
 
   useEffect(() => {
     fetchTodos();
@@ -75,6 +78,7 @@ function TodoList() {
       const json = await res.json();
       if (json.success) {
         await fetchTodos();
+        window.dispatchEvent(new Event('activity-updated'));
       }
     } catch {
       // Handle error silently
@@ -92,6 +96,7 @@ function TodoList() {
       const json = await res.json();
       if (json.success) {
         await fetchTodos();
+        window.dispatchEvent(new Event('activity-updated'));
       }
     } catch {
       // Handle error silently
@@ -108,6 +113,7 @@ function TodoList() {
       const json = await res.json();
       if (json.success) {
         await fetchTodos();
+        window.dispatchEvent(new Event('activity-updated'));
       }
     } catch {
       // Handle error silently
@@ -122,6 +128,7 @@ function TodoList() {
       const json = await res.json();
       if (json.success) {
         setTodos((prev) => prev.filter((t) => t.id !== id));
+        window.dispatchEvent(new Event('activity-updated'));
       }
     } catch {
       // Handle error silently
@@ -150,6 +157,18 @@ function TodoList() {
   const totalCount = todos.length;
   const completedCount = todos.filter((t) => t.status === 'completed').length;
   const pendingCount = todos.filter((t) => t.status === 'pending').length;
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const displayTodos = todos.filter(t => {
+    if (urlFilter === 'today') {
+      return t.due_date && t.due_date.startsWith(todayStr);
+    }
+    if (urlFilter === 'upcoming') {
+      return t.due_date && t.due_date > todayStr;
+    }
+    return true; // Other filters are handled by the backend
+  });
 
   const statusFilters = [
     { key: 'all', label: 'All' },
@@ -198,9 +217,14 @@ function TodoList() {
             <button
               key={f.key}
               className={`toolbar__filter-btn ${
-                filter === f.key ? 'toolbar__filter-btn--active' : ''
+                urlFilter === f.key ? 'toolbar__filter-btn--active' : ''
               }`}
-              onClick={() => setFilter(f.key)}
+              onClick={() => {
+                const newParams = new URLSearchParams(searchParams);
+                if (f.key === 'all') newParams.delete('filter');
+                else newParams.set('filter', f.key);
+                setSearchParams(newParams);
+              }}
             >
               {f.label}
             </button>
@@ -282,7 +306,7 @@ function TodoList() {
           </svg>
           <h3 className="todo-list__empty-title">No tasks found</h3>
           <p className="todo-list__empty-text">
-            {filter !== 'all' || priorityFilter !== 'all' || searchQuery
+            {urlFilter !== 'all' || priorityFilter !== 'all' || searchQuery
               ? 'Try adjusting your filters or search query'
               : 'Create your first task to get started'}
           </p>
@@ -298,7 +322,7 @@ function TodoList() {
         </div>
       ) : (
         <div className="todo-list">
-          {todos.map((todo) => (
+          {displayTodos.map((todo) => (
             <TodoItem
               key={todo.id}
               todo={todo}

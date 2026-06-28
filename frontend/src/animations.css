@@ -1,0 +1,359 @@
+/* === AppLoader Splash Screen === */
+.app-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: #0a0f1e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: splashExit 300ms ease-in forwards;
+  animation-delay: 600ms;
+}
+
+.app-loader__logo-container {
+  animation: logoPulse 400ms ease-out forwards;
+}
+
+.app-loader__logo {
+  width: 64px;
+  height: 64px;
+  color: var(--accent-primary);
+}
+
+.app-loader__progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: var(--accent-primary);
+  width: 0%;
+  animation: sweepProgress 300ms ease-out forwards;
+  animation-delay: 300ms;
+}
+
+@keyframes logoPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sweepProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes splashExit {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.05); opacity: 0; pointer-events: none; }
+}
+
+/* === Page Entry Animations === */
+.sidebar {
+  animation: slideInSidebar 350ms ease-out forwards;
+  animation-delay: 600ms;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.page-header {
+  animation: fadeDownHeader 350ms ease-out forwards;
+  animation-delay: 600ms;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.stats-bar__card {
+  animation: scaleInCard 350ms ease-out forwards;
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.stats-bar__card--total { animation-delay: 600ms; border-top: 2px solid #6366f1; }
+.stats-bar__card--completed { animation-delay: 680ms; border-top: 2px solid #10b981; position: relative; overflow: hidden; }
+.stats-bar__card--pending { animation-delay: 760ms; border-top: 2px solid #f59e0b; }
+
+.todo-item {
+  animation: slideUpRow 350ms ease-out forwards;
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+@keyframes slideInSidebar {
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeDownHeader {
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes scaleInCard {
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes slideUpRow {
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* === Sidebar Additions === */
+.sidebar__shimmer-line {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
+  margin: var(--space-md) 0;
+  opacity: 0.5;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.sidebar__user-widget {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-sm) 0;
+}
+
+.sidebar__progress-ring-container {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar__progress-ring-bg {
+  color: var(--border-primary);
+}
+
+.sidebar__progress-ring-circle {
+  color: var(--accent-primary);
+  transition: stroke-dashoffset 1s ease-out;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.sidebar__progress-text {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sidebar__greeting {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.sidebar__greeting-sub {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* === Stats Cards Additions === */
+.stats-bar__arc {
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  color: var(--accent-primary);
+  opacity: 0.15;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+/* === Todo Item Micromotion === */
+.todo-item {
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1), background-color 200ms ease;
+  position: relative;
+}
+
+.todo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 1;
+}
+
+.todo-item__drag-handle {
+  opacity: 0;
+  transition: opacity 200ms ease;
+  color: var(--text-tertiary);
+  cursor: grab;
+  margin-right: var(--space-sm);
+  display: flex;
+  align-items: center;
+}
+
+.todo-item:hover .todo-item__drag-handle {
+  opacity: 1;
+}
+
+.todo-item__checkbox--rippling {
+  animation: rippleCheck 400ms ease-out;
+}
+
+@keyframes rippleCheck {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50% { transform: scale(1.4); box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+.todo-item--deleting {
+  animation: deleteSlideOut 250ms ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes deleteSlideOut {
+  to { height: 0; opacity: 0; transform: translateX(20px); margin: 0; padding: 0; border: none; }
+}
+
+.todo-item__priority--high .todo-item__priority-dot {
+  animation: pulsePriority 2s infinite;
+}
+
+@keyframes pulsePriority {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* === Modal Entry/Exit === */
+.modal-overlay {
+  animation: fadeInOverlay 150ms ease-out forwards;
+}
+
+.modal-content {
+  animation: modalEnter 220ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.modal-overlay.closing {
+  animation: fadeOutOverlay 150ms ease-in forwards;
+}
+
+.modal-content.closing {
+  animation: modalExit 150ms ease-in forwards;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+}
+
+@keyframes fadeOutOverlay {
+  to { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
+}
+
+@keyframes modalEnter {
+  from { transform: scale(0.92) translateY(8px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes modalExit {
+  to { transform: scale(0.96); opacity: 0; }
+}
+
+.modal-form__group {
+  animation: slideUpForm 300ms ease-out forwards;
+  opacity: 0;
+  transform: translateY(6px);
+}
+.modal-form__group:nth-child(1) { animation-delay: 100ms; }
+.modal-form__group:nth-child(2) { animation-delay: 130ms; }
+.modal-form__group:nth-child(3) { animation-delay: 160ms; }
+.modal-form__group:nth-child(4) { animation-delay: 190ms; }
+
+@keyframes slideUpForm {
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* === Empty State SVG Animation === */
+.todo-list__empty--animate {
+  animation: scaleInEmpty 400ms cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@keyframes scaleInEmpty {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.empty-svg-draw {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: drawPath 800ms ease-out forwards;
+  animation-delay: 200ms;
+}
+
+.empty-svg-fade {
+  opacity: 0;
+  animation: fadePath 400ms ease-out forwards;
+  animation-delay: 800ms;
+}
+
+@keyframes drawPath {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes fadePath {
+  to { opacity: 0.3; }
+}
+
+/* === Sliding Pill Filters === */
+.toolbar__pill-container {
+  position: relative;
+  display: flex;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+
+.toolbar__pill-highlight {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  background: var(--bg-glass-hover);
+  border-radius: calc(var(--radius-md) - 2px);
+  transition: all 300ms cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  border: 1px solid var(--border-primary);
+}
+
+.toolbar__filter-btn {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border: none;
+  /* Remove existing hover background to not conflict with highlight */
+}
+.toolbar__filter-btn:hover {
+  background: transparent;
+}
+.toolbar__filter-btn--active {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+/* === Page Transitions === */
+.page-transition-wrapper {
+  animation: pageEnter 250ms ease-out forwards;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Reduced Motion Support === */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

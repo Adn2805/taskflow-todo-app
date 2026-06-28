@@ -6,6 +6,30 @@ const router = Router();
 const VALID_PRIORITIES = ['low', 'medium', 'high'];
 const VALID_STATUSES = ['pending', 'completed'];
 
+router.get('/activity', (req, res) => {
+  const days = parseInt(req.query.days) || 35;
+  const db = getDb();
+  
+  // Use queryAll from our db module
+  const rows = queryAll(`
+    SELECT DATE(timestamp) as date, COUNT(*) as count
+    FROM activity_log
+    WHERE timestamp >= DATE('now', '-' || ? || ' days')
+    GROUP BY DATE(timestamp)
+    ORDER BY date ASC
+  `, [days]);
+  
+  const result = [];
+  for(let i = days-1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const found = rows.find(r => r.date === dateStr);
+    result.push({ date: dateStr, count: found ? found.count : 0 });
+  }
+  res.json({ success: true, data: result });
+});
+
 /**
  * GET /
  * List all todos with optional search, priority, and status filters.
@@ -326,8 +350,13 @@ router.delete('/:id', (req, res) => {
     }
 
     const db = getDb();
-    // Delete activity logs first (in case CASCADE doesn't work with sql.js)
-    db.run('DELETE FROM activity_log WHERE todo_id = ?', [id]);
+    
+    const now = new Date().toISOString();
+    db.run(
+      'INSERT INTO activity_log (todo_id, action, timestamp) VALUES (?, ?, ?)',
+      [id, 'Deleted', now]
+    );
+
     db.run('DELETE FROM todos WHERE id = ?', [id]);
     saveDb();
 
