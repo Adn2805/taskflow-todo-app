@@ -65,11 +65,11 @@
   /* Spacing Scale */
   --space-xs: 4px;
   --space-sm: 8px;
-  --space-md: 12px;
-  --space-lg: 16px;
-  --space-xl: 24px;
-  --space-2xl: 32px;
-  --space-3xl: 48px;
+  --space-md: clamp(8px, 2vw, 12px);
+  --space-lg: clamp(12px, 3vw, 16px);
+  --space-xl: clamp(16px, 4vw, 24px);
+  --space-2xl: clamp(24px, 5vw, 32px);
+  --space-3xl: clamp(32px, 6vw, 48px);
 
   /* Border Radius */
   --radius-sm: 4px;
@@ -634,7 +634,7 @@ ul, ol {
   display: flex;
   align-items: flex-start;
   gap: var(--space-lg);
-  padding: var(--space-lg) var(--space-xl);
+  padding: clamp(16px, 3vw, 24px);
   background: var(--bg-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -857,9 +857,11 @@ ul, ol {
   background: var(--bg-secondary);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
-  width: 100%;
+  padding: clamp(20px, 5vw, 40px);
+  position: relative;
+  width: calc(100% - 32px); /* Ensures spacing on mobile edges */
   max-width: 520px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
   animation: slideUp 300ms ease;
   overflow: hidden;
 }
@@ -948,6 +950,7 @@ ul, ol {
 .modal__priority-selector {
   display: flex;
   gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .modal__priority-option {
@@ -1540,29 +1543,28 @@ ul, ol {
     gap: 12px;
   }
 
-  /* Todo List Header & Filters */
-  .todo-header {
+  /* Toolbar & Filters */
+  .toolbar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 16px;
     padding: 16px;
   }
 
-  .todo-search {
-    width: 100%;
-    max-width: none;
-  }
-
-  .todo-filters {
+  .toolbar__section {
     width: 100%;
     overflow-x: auto;
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap !important;
   }
   
-  .todo-filters::-webkit-scrollbar {
+  .toolbar__section::-webkit-scrollbar {
     display: none; /* Hide scrollbar for a native feel */
+  }
+
+  .toolbar__search-wrapper {
+    width: 100%;
   }
 
   /* Todo Items */
@@ -1573,30 +1575,29 @@ ul, ol {
     flex-wrap: wrap;
   }
 
-  .todo-item__checkbox {
+  .todo-checkbox {
     min-width: 44px; /* Touch target minimum */
     min-height: 44px;
-    margin: -10px; /* Offset to keep alignment but expand touch area */
+    margin-left: -10px; /* Offset to keep alignment but expand touch area */
+    margin-top: -10px;
     padding: 10px;
   }
 
-  .todo-item__content {
-    min-width: 0; /* Allow truncation */
-  }
-
-  .todo-item__title {
-    white-space: normal; /* Allow wrapping on very narrow screens */
+  .todo-title {
+    white-space: normal !important; /* Allow wrapping on very narrow screens */
     word-break: break-word;
     margin-top: 2px;
+    flex: 1;
+    min-width: 0;
   }
 
-  .todo-item__badges {
+  .todo-meta {
     flex-wrap: wrap; /* Prevent overlap */
   }
 
-  .todo-item__actions {
-    position: relative; /* Remove absolute positioning */
-    opacity: 1; /* Always visible on mobile */
+  .todo-actions {
+    position: relative; /* Remove absolute positioning if any */
+    opacity: 1 !important; /* Always visible on mobile */
     right: auto;
     transform: none;
     background: transparent;
@@ -1607,7 +1608,7 @@ ul, ol {
     gap: 12px;
   }
 
-  .todo-item__action-btn {
+  .icon-btn {
     min-width: 44px;
     min-height: 44px;
     padding: 8px;
