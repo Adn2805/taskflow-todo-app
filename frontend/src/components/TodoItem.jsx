@@ -29,7 +29,7 @@ function TodoItem({ todo, onToggle, onDelete, onEdit, index = 0 }) {
       style={{ animationDelay: `${index * 50}ms` }}
       onClick={handleToggle}
     >
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+      <div className="todo-item__layout">
         <button
           className={`todo-checkbox ${todo.status === 'completed' ? 'checked' : ''}`}
           onClick={handleToggle}
@@ -39,12 +39,12 @@ function TodoItem({ todo, onToggle, onDelete, onEdit, index = 0 }) {
           {todo.status === 'completed' && <Check size={14} color="white" strokeWidth={3} />}
         </button>
 
-        <div style={{ flex: 1 }}>
-          <div className={`todo-title ${todo.status === 'completed' ? 'completed' : ''}`} style={{ fontSize: '15px', fontWeight: '500', color: 'white' }}>
+        <div className="todo-item__main">
+          <div className={`todo-title ${todo.status === 'completed' ? 'completed' : ''}`}>
             {todo.title}
           </div>
           {todo.description && (
-            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', lineHeight: '1.4' }}>
+            <div className="todo-description">
               {todo.description}
             </div>
           )}
@@ -62,7 +62,7 @@ function TodoItem({ todo, onToggle, onDelete, onEdit, index = 0 }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', opacity: 0.7 }} className="todo-actions">
+        <div className="todo-actions">
           <button className="icon-btn" onClick={handleEdit} aria-label="Edit task">
             <Edit3 size={16} />
           </button>
