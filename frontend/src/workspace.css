@@ -691,6 +691,9 @@
 
 /* === MOBILE RESPONSIVENESS === */
 @media (max-width: 768px) {
+  .sidebar--collapsed {
+    display: none !important;
+  }
   /* Sidebar behaves as an off-canvas menu on mobile */
   .sidebar {
     position: fixed;
