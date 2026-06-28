@@ -838,15 +838,15 @@ ul, ol {
 
   /* === Todo Item Refactored Classes === */
   .todo-item__layout {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 16px;
     align-items: flex-start;
     width: 100%;
   }
 
   .todo-item__main {
-    flex: 1;
-    min-width: 0; /* Prevent flex blowout */
+    min-width: 0; /* Prevent grid blowout */
   }
 
   .todo-title {
@@ -854,6 +854,8 @@ ul, ol {
     font-weight: 500;
     color: white;
     word-break: break-word;
+    display: inline-block;
+    max-width: 100%;
   }
 
   .todo-description {
@@ -1502,8 +1504,6 @@ ul, ol {
     white-space: normal !important; /* Allow wrapping on very narrow screens */
     word-break: break-word;
     margin-top: 2px;
-    flex: 1;
-    min-width: 0;
   }
 
   .todo-meta {
