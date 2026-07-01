@@ -101,4 +101,4 @@ todo-app/
 
 ## License
 
-MIT
+This project was developed for educational purposes
