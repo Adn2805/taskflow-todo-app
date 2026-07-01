@@ -40,10 +40,7 @@ npm install
 npm run dev
 ```
 
-| Service  | URL                     |
-|----------|-------------------------|
-| Backend  | http://localhost:3001    |
-| Frontend | http://localhost:5173    |
+
 
 ## Architecture
 
