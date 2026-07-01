@@ -4,6 +4,14 @@
 
 A full-stack todo application built with React 18, Express.js, and LibSQL (SQLite on the edge). Designed with modern UI/UX patterns including a premium dark theme, glassmorphism, activity tracking, and a fully responsive mobile layout.
 
+## App Screenshots
+
+| Landing Page | Dashboard |
+|---|---|
+| ![Landing Page](docs/landing.png) | ![Dashboard Overview](docs/dashboard.png) |
+| **Smart Inbox** | **Task Modal** |
+| ![Smart Inbox](docs/inbox.png) | ![New Task Modal](docs/modal.png) |
+
 ## Quick Start
 
 ### Prerequisites
